@@ -1,40 +1,42 @@
-package com.aurea.scheduler;
+package com.aurea.scheduler
 
-import java.util.Arrays;
-import java.util.List;
-import one.util.streamex.StreamEx;
+import one.util.streamex.StreamEx
 
-public class Application {
-    private Scheduler scheduler;
+class Application {
+    private Scheduler scheduler
 
     private Application() {
-        prepareData();
+        prepareData()
     }
 
     /* Prints all information */
     private void fullReport() {
-        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map(project -> project.name).joining("\n\t"));
+        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map { it.name }.joining("\n\t"))
 
-        execute(true);
+        execute(true)
     }
 
     /* Prints report in CSV format, can be opened with Excel */
     private void csvReport() {
-        execute(false);
+        execute(false)
     }
 
     private void execute(boolean fullReport) {
-        double totalWorkload;
-        int day = 1;
-        do {
-            totalWorkload = scheduler.getTotalRemainingWorkload();
+        def totalWorkload
+        int day = 1
+        while (true) {
+            totalWorkload = scheduler.getTotalRemainingWorkload()
+
             if (fullReport) {
-                System.out.println();
-                scheduler.reportState();
-                System.out.println();
+                System.out.println()
+                scheduler.reportState()
+                System.out.println()
             }
-            scheduler.scheduleAll(day++);
-        } while (totalWorkload > scheduler.getTotalRemainingWorkload());
+            scheduler.schedule(day++)
+
+            if (totalWorkload == scheduler.getTotalRemainingWorkload())
+                break
+        }
     }
 
     private void prepareData() {
@@ -69,7 +71,7 @@ public class Application {
                 new Project("StillSecure", 29),
                 new Project("TenFold", 22),
                 new Project("TriActive", 15)
-        ));
+        ))
 
         List<Person> persons = Arrays.asList(
                 new Person("Chethan", projects.get("Prologic")),
@@ -78,18 +80,18 @@ public class Application {
                 new Person("Isabela", projects.get("Prologic")),
                 new Person("Radu", projects.get("Accept", "Agentek", "AlterPoint", "Artemis Views", "Artemis A7", "Artemis Finland", "Auto-trol TI", "Auto-trol Konfig", "Ecora", "EPM Live", "Prologic", "Purchasingnet", "Right90", "Smartform Design")),
                 new Person("AJ", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")),
-                new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")));
+                new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")))
 
-        scheduler = new Scheduler(projects, persons);
+        scheduler = new Scheduler(projects, persons)
     }
 
-    public static void main(String[] args) {
-        Application application = new Application();
+    static void main(String[] args) {
+        Application application = new Application()
 
         /* Prints all information */
-        application.fullReport();
+        application.fullReport()
 
         /* Prints report in CSV format, can be opened with Excel */
-//        application.csvReport();
+//        application.csvReport()
     }
 }
