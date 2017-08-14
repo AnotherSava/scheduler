@@ -1,33 +1,95 @@
 package com.aurea.scheduler;
 
 import java.util.Arrays;
+import java.util.List;
+import one.util.streamex.StreamEx;
 
 public class Application {
-    public static void main(String[] args) {
-        Project project1 = new Project(1);
-        Project project2 = new Project(2);
-        Project project3 = new Project(3);
-        Project project4 = new Project(4);
-        Project project5 = new Project(5);
-        Project project6 = new Project(6);
+    private Scheduler scheduler;
 
-        Person person1 = new Person(1, Arrays.asList(project2, project5));
-        Person person2 = new Person(2, Arrays.asList(project1, project4));
-        Person person3 = new Person(3, Arrays.asList(project2, project6));
-        Person person4 = new Person(4, Arrays.asList(project3));
-        Person person5 = new Person(5, Arrays.asList(project1, project5));
+    private Application() {
+        prepareData();
+    }
 
-        Scheduler scheduler = new Scheduler(Arrays.asList(project1, project2, project3, project4, project5, project6), Arrays.asList(person1, person2, person3, person4, person5));
+    /* Prints all information */
+    private void fullReport() {
+        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map(project -> project.name).joining("\n\t"));
 
+        execute(true);
+    }
+
+    /* Prints report in CSV format, can be opened with Excel */
+    private void csvReport() {
+        execute(false);
+    }
+
+    private void execute(boolean fullReport) {
         double totalWorkload;
         int day = 1;
         do {
             totalWorkload = scheduler.getTotalRemainingWorkload();
-            scheduler.reportState();
-//            scheduler.reportWorkload();
-            System.out.println();
-            scheduler.schedule(scheduler.persons, day++);
-            System.out.println();
+            if (fullReport) {
+                System.out.println();
+                scheduler.reportState();
+                System.out.println();
+            }
+            scheduler.scheduleAll(day++);
         } while (totalWorkload > scheduler.getTotalRemainingWorkload());
+    }
+
+    private void prepareData() {
+        Projects projects = new Projects(Arrays.asList(
+                new Project("Accept", 17),
+                new Project("Acorn", 9),
+                new Project("Agentek", 16),
+                new Project("AlterPoint", 26),
+                new Project("Artemis A7", 8),
+                new Project("Artemis Views", 8),
+                new Project("Artemis Finland", 27),
+                new Project("Auto-trol TI", 14),
+                new Project("Auto-trol Konfig", 14),
+                new Project("Clear", 28),
+                new Project("Corizon", 21),
+                new Project("Ecora", 18),
+                new Project("EPM Live", 5),
+                new Project("ETI", 25),
+                new Project("Everest", 1),
+                new Project("Gensym", 6),
+                new Project("Ignite", 7),
+                new Project("Infobright", 12),
+                new Project("NuView", 2),
+                new Project("ObjectStore", 10),
+                new Project("Placeable", 24),
+                new Project("Prologic", 4),
+                new Project("Purchasingnet", 13),
+                new Project("Ravenflow", 23),
+                new Project("Right90", 19),
+                new Project("SenSage", 11),
+                new Project("Smartform Design", 20),
+                new Project("StillSecure", 29),
+                new Project("TenFold", 22),
+                new Project("TriActive", 15)
+        ));
+
+        List<Person> persons = Arrays.asList(
+                new Person("Chethan", projects.get("Prologic")),
+                new Person("Ganapati", projects.get("EPM Live", "Everest", "Infobright")),
+                new Person("Grace", projects.get("Everest", "Infobright")),
+                new Person("Isabela", projects.get("Prologic")),
+                new Person("Radu", projects.get("Accept", "Agentek", "AlterPoint", "Artemis Views", "Artemis A7", "Artemis Finland", "Auto-trol TI", "Auto-trol Konfig", "Ecora", "EPM Live", "Prologic", "Purchasingnet", "Right90", "Smartform Design")),
+                new Person("AJ", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")),
+                new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")));
+
+        scheduler = new Scheduler(projects, persons);
+    }
+
+    public static void main(String[] args) {
+        Application application = new Application();
+
+        /* Prints all information */
+        application.fullReport();
+
+        /* Prints report in CSV format, can be opened with Excel */
+//        application.csvReport();
     }
 }

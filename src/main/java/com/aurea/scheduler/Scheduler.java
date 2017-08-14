@@ -2,21 +2,23 @@ package com.aurea.scheduler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import one.util.streamex.StreamEx;
 
 public class Scheduler {
-    List<Project> projects;
+
+    Projects projects;
     List<Person> persons;
 
-    public Scheduler(List<Project> projects, List<Person> persons) {
+    public Scheduler(Projects projects, List<Person> persons) {
         this.projects = projects;
         this.persons = persons;
     }
 
     private int leftToLearn(Person person) {
-        return projects.size() - person.knows.size();
+        return projects.projects.size() - person.knows.size();
     }
 
     private long leftToTeach(Project project) {
@@ -35,64 +37,54 @@ public class Scheduler {
         return leftToTeach(project) * 1.0 / numberOfNavigators(project);
     }
 
-    public void schedule(Collection<Person> people, int day) {
-        scheduleSorted(StreamEx.of(people).sortedByDouble(p -> -remainingWorkload(p)).toList(), day);
-    }
-
     public Optional<Project> canNavigate(Person navigator, Person driver) {
         return StreamEx.of(navigator.navigate).filter(project -> !driver.knows.contains(project)).sortedByDouble(
                 project1 -> -remainingWorkload(project1)).findFirst();
     }
 
-    private Optional<Session> createSession(Optional<Project> project, Person navigator, Person driver) {
-        return project.map(project1 -> new Session(project1, navigator, driver));
-    }
-
-    public Optional<Session> findProject(Person person1, Person person2) {
-        Optional<Project> project1 = canNavigate(person1, person2);
-        Optional<Project> project2 = canNavigate(person2, person1);
-        if (!project1.isPresent())
-            return createSession(project2, person2, person1);
-        if (!project2.isPresent())
-            return createSession(project1, person1, person2);
-
-        return remainingWorkload(project1.get()) > remainingWorkload(project2.get()) ?
-                createSession(project1, person1, person2) : createSession(project2, person2, person1);
-    }
-
-    public void scheduleSorted(List<Person> people, int day) {
-        if (people.size() < 2)
-            return;
-
-        Person mostBusy = people.get(0);
-        for (Person person: people.subList(1, people.size())) {
-            Optional<Session> session = findProject(mostBusy, person);
-            if (!session.isPresent())
-                continue;
-
-            System.out.println(session.get().toString() + "," + day);
-            session.get().driver.knows.add(session.get().project);
-            List<Person> remainingPeople = new ArrayList<>(people);
-            remainingPeople.remove(session.get().driver);
-            remainingPeople.remove(session.get().navigator);
-            scheduleSorted(remainingPeople, day);
-            break;
-        }
-    }
-
     private String getPersonStatusWithTheProject(Person person, Project project) {
-        return  person.navigate.contains(project) ? "N" : person.knows.contains(project) ? "+" : "-";
+        return person.navigate.contains(project) ? "N" : person.knows.contains(project) ? "+" : "-";
     }
 
     private String createPersonStatusWithProjects(Person person) {
-        return StreamEx.of(projects).map(project -> getPersonStatusWithTheProject(person, project)).joining("  ");
+        return StreamEx.of(projects.projects).map(project -> getPersonStatusWithTheProject(person, project)).joining("  ");
     }
 
     public void reportState() {
-        persons.forEach(person -> System.out.println(person + ":   " + createPersonStatusWithProjects(person) + "   remaining workload: " + remainingWorkload(person)));
+        persons.forEach(person -> System.out.println(
+                createPersonStatusWithProjects(person) + "     " + person + ",  remaining workload: "
+                        + remainingWorkload(person)));
     }
 
     public double getTotalRemainingWorkload() {
         return StreamEx.of(persons).mapToDouble(this::remainingWorkload).sum();
+    }
+
+    public void scheduleAll(int day) {
+        Collection<Person> availablePeople = new ArrayList<>(persons);
+        projects.projects.forEach(project -> scheduleAll(project, availablePeople, day));
+    }
+
+    public void scheduleAll(Project project, Collection<Person> availablePeople, int day) {
+        Optional<Session> session = schedule(project, availablePeople);
+        while (session.isPresent()) {
+            System.out.println(session.get() + "," + day);
+            availablePeople.remove(session.get().navigator);
+            session.get().driver.knows.addAll(session.get().projects.projects);
+            availablePeople.remove(session.get().driver);
+            session = schedule(project, availablePeople);
+        }
+    }
+
+    public Optional<Session> schedule(Project project, Collection<Person> availablePeople) {
+        return StreamEx.of(availablePeople).filter(person -> person.navigate.contains(project)).flatMap(navigator -> StreamEx.of(availablePeople).filter(person -> !person.knows.contains(project)).map(person -> createSession(navigator, person))).sorted().findFirst();
+    }
+
+    private Session createSession(Person navigator, Person driver) {
+        return new Session(createNavigationList(navigator, driver), navigator, driver);
+    }
+
+    private Projects createNavigationList(Person navigator, Person driver) {
+        return new Projects(StreamEx.of(navigator.navigate).filter(project -> !driver.knows.contains(project)).toList());
     }
 }

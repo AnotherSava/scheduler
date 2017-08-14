@@ -1,19 +1,25 @@
 package com.aurea.scheduler;
 
-public class Session {
-    public Project project;
+import one.util.streamex.StreamEx;
+
+public class Session implements Comparable<Session> {
+    public Projects projects;
     public Person navigator;
     public Person driver;
 
-    public Session(Project project, Person navigator, Person driver) {
-        this.project = project;
+    public Session(Projects projects, Person navigator, Person driver) {
+        this.projects = new Projects(StreamEx.of(projects.projects).limit(3).toList());
         this.navigator = navigator;
         this.driver = driver;
     }
 
     @Override
     public String toString() {
-//        return "session for project '" + project + "', navigator: '" + navigator + "', driver: '" + driver + "'";
-        return project + "," + driver + "," + navigator;
+        return projects + "," + driver + "," + navigator;
+    }
+
+    @Override
+    public int compareTo(Session anotherSession) {
+        return projects.compareTo(anotherSession.projects);
     }
 }
