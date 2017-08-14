@@ -14,13 +14,6 @@ public class Projects implements Comparable<Projects> {
         this.projects = StreamEx.of(projects).sortedByInt(Project::getPriority).toList();
     }
 
-/*
-    @Override
-    public int compareTo(Projects otherProjects) {
-        return projects.size() - otherProjects.projects.size();
-    }
-*/
-
     @Override
     public int compareTo(Projects otherProjects) {
         Iterator<Project> iterator = projects.iterator();

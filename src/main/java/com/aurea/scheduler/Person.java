@@ -16,10 +16,13 @@ public class Person {
         this.navigate = new ArrayList<>(navigate);
     }
 
-    public Person(String name, Project... navigate) {
-        this.name = name;
-        knows = Arrays.asList(navigate);
-        this.navigate = Arrays.asList(navigate);
+    public boolean canNavigate(Project project)
+    {
+        return navigate.contains(project);
+    }
+
+    public boolean needNavigation(Project project) {
+        return !knows.contains(project);
     }
 
     @Override
