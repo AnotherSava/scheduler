@@ -10,10 +10,12 @@ public class Scheduler {
 
     Projects projects;
     private List<Person> persons;
+    private List<Session> sessions;
 
     public Scheduler(Projects projects, List<Person> persons) {
         this.projects = projects;
         this.persons = persons;
+        sessions = new ArrayList<>();
     }
 
     private int leftToLearn(Person person) {
@@ -61,6 +63,7 @@ public class Scheduler {
     public void scheduleAll(Project project, Collection<Person> availablePeople, int day) {
         Optional<Session> session = schedule(project, availablePeople);
         while (session.isPresent()) {
+            sessions.add(session.get());
             System.out.println(session.get() + "," + day);
             availablePeople.remove(session.get().navigator);
             session.get().driver.knows.addAll(session.get().projects.projects);
