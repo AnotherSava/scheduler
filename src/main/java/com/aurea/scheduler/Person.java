@@ -1,24 +1,25 @@
 package com.aurea.scheduler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Person {
-    public int id;
     public String name;
 
     public List<Project> knows;
     public List<Project> navigate;
 
-    public Person(int id, List<Project> navigate) {
-        this(id, navigate, "R" + id);
-    }
-
-    public Person(int id, List<Project> navigate, String name) {
-        this.id = id;
+    public Person(String name, List<Project> navigate) {
         this.name = name;
         knows = new ArrayList<>(navigate);
         this.navigate = new ArrayList<>(navigate);
+    }
+
+    public Person(String name, Project... navigate) {
+        this.name = name;
+        knows = Arrays.asList(navigate);
+        this.navigate = Arrays.asList(navigate);
     }
 
     @Override

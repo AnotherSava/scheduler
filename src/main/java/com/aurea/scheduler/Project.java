@@ -1,16 +1,17 @@
 package com.aurea.scheduler;
 
 public class Project {
-    public int id;
+    /** Less is more prioritized */
+    public int priority;
     public String name;
 
-    public Project(int id) {
-        this(id, "P" + id);
+    public Project(String name, int priority) {
+        this.priority = priority;
+        this.name = name;
     }
 
-    public Project(int id, String name) {
-        this.id = id;
-        this.name = name;
+    public int getPriority() {
+        return priority;
     }
 
     @Override
