@@ -5,7 +5,39 @@ import java.util.List;
 import one.util.streamex.StreamEx;
 
 public class Application {
-    public static void main(String[] args) {
+    private Scheduler scheduler;
+
+    private Application() {
+        prepareData();
+    }
+
+    /* Prints all information */
+    private void fullReport() {
+        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map(project -> project.name).joining("\n\t"));
+
+        execute(true);
+    }
+
+    /* Prints report in CSV format, can be opened with Excel */
+    private void csvReport() {
+        execute(false);
+    }
+
+    private void execute(boolean fullReport) {
+        double totalWorkload;
+        int day = 1;
+        do {
+            totalWorkload = scheduler.getTotalRemainingWorkload();
+            if (fullReport) {
+                System.out.println();
+                scheduler.reportState();
+                System.out.println();
+            }
+            scheduler.scheduleAll(day++);
+        } while (totalWorkload > scheduler.getTotalRemainingWorkload());
+    }
+
+    private void prepareData() {
         Projects projects = new Projects(Arrays.asList(
                 new Project("Accept", 17),
                 new Project("Acorn", 9),
@@ -37,8 +69,6 @@ public class Application {
                 new Project("StillSecure", 29),
                 new Project("TenFold", 22),
                 new Project("TriActive", 15)
-//                new Project("Versata CPQ", 30),
-//                new Project("Versata", 3)
         ));
 
         List<Person> persons = Arrays.asList(
@@ -50,18 +80,16 @@ public class Application {
                 new Person("AJ", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")),
                 new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")));
 
-//        System.out.println("Projects: \n\t" + StreamEx.of(projects.projects).map(project -> project.name).joining("\n\t"));
+        scheduler = new Scheduler(projects, persons);
+    }
 
-        Scheduler scheduler = new Scheduler(projects, persons);
+    public static void main(String[] args) {
+        Application application = new Application();
 
-        double totalWorkload;
-        int day = 1;
-        do {
-            totalWorkload = scheduler.getTotalRemainingWorkload();
-//            System.out.println();
-//            scheduler.reportState();
-//            System.out.println();
-            scheduler.scheduleAll(day++);
-        } while (totalWorkload > scheduler.getTotalRemainingWorkload());
+        /* Prints all information */
+        application.fullReport();
+
+        /* Prints report in CSV format, can be opened with Excel */
+//        application.csvReport();
     }
 }
