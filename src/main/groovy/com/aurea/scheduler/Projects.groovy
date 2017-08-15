@@ -34,9 +34,12 @@ class Projects implements Comparable<Projects> {
     }
 
     List<Project> get(String... names) {
-        List<String> namesList = Arrays.asList(names)
-        namesList.forEach {checkName(it)}
-        StreamEx.of(projects).filter { namesList.contains(it.name) }.toList()
+        get(Arrays.asList(names))
+    }
+
+    List<Project> get(List<String> names) {
+        names.forEach {checkName(it)}
+        StreamEx.of(projects).filter { names.contains(it.name) }.toList()
     }
 
     private void checkName(String name) {
