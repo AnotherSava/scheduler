@@ -1,6 +1,5 @@
 package com.aurea.google
 
-import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
 
 import static com.aurea.google.Auth.getSheetsService
