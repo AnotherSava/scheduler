@@ -11,7 +11,7 @@ class Quickstart {
 
     static void main(String[] args) throws IOException {
         // Build a new authorized API client service.
-        Sheets service = sheetsService
+        def service = sheetsService
 
         sampleRead(service)
         sampleWrite(service)

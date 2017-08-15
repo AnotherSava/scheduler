@@ -1,42 +1,16 @@
 package com.aurea.scheduler
 
+import com.aurea.google.GoogleOutputProcessor
 import one.util.streamex.StreamEx
 
 class Application {
+
     private Scheduler scheduler
+    private List<Person> people
+    private ArrayList<PlannedSession> plannedSessions
 
     private Application() {
         prepareData()
-    }
-
-    /* Prints all information */
-    private void fullReport() {
-        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map { it.name }.joining("\n\t"))
-
-        execute(true)
-    }
-
-    /* Prints report in CSV format, can be opened with Excel */
-    private void csvReport() {
-        execute(false)
-    }
-
-    private void execute(boolean fullReport) {
-        def totalWorkload
-        int day = 1
-        while (true) {
-            totalWorkload = scheduler.getTotalRemainingWorkload()
-
-            if (fullReport) {
-                System.out.println()
-                scheduler.reportState()
-                System.out.println()
-            }
-            scheduler.schedule(day++)
-
-            if (totalWorkload == scheduler.getTotalRemainingWorkload())
-                break
-        }
     }
 
     private void prepareData() {
@@ -73,7 +47,7 @@ class Application {
                 new Project("TriActive", 15)
         ])
 
-        List<Person> persons = [
+        people = [
                 new Person("Chethan", projects.get("Prologic")),
                 new Person("Ganapati", projects.get("EPM Live", "Everest", "Infobright")),
                 new Person("Grace", projects.get("Everest", "Infobright")),
@@ -83,7 +57,42 @@ class Application {
                 new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold"))
         ]
 
-        scheduler = new Scheduler(projects, persons)
+        scheduler = new Scheduler(projects, people)
+    }
+
+    /* Prints all information */
+    private void fullReport() {
+        System.out.println("Projects: \n\t" + StreamEx.of(scheduler.projects.projects).map { it.name }.joining("\n\t"))
+
+        execute(true)
+    }
+
+    /* Prints report in CSV format, can be opened with Excel */
+    private void csvReport() {
+        execute(false)
+    }
+
+    private void execute(boolean fullReport) {
+        plannedSessions = new ArrayList<>()
+        int day = 1
+        while (true) {
+
+            if (fullReport) {
+                System.out.println()
+                Reporter.reportState(scheduler)
+                System.out.println()
+            }
+            def sessions = scheduler.schedule()
+
+            if (sessions.isEmpty())
+                break
+
+            def newPlannedSessions = StreamEx.of(sessions).map { new PlannedSession(it, day) }.toList()
+
+            Reporter.reportSessions(newPlannedSessions)
+            plannedSessions.addAll(newPlannedSessions)
+            day++
+        }
     }
 
     static void main(String[] args) {
@@ -91,6 +100,9 @@ class Application {
 
         /* Prints all information */
         application.fullReport()
+
+        /* Write output to google document */
+        GoogleOutputProcessor.write(application.plannedSessions)
 
         /* Prints report in CSV format, can be opened with Excel */
 //        application.csvReport()
