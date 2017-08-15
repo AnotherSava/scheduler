@@ -3,9 +3,9 @@ package com.aurea.scheduler
 import one.util.streamex.StreamEx
 
 class Session implements Comparable<Session> {
-    public Projects projects
-    public Person navigator
-    public Person driver
+    Projects projects
+    Person navigator
+    Person driver
 
     Session(Projects projects, Person navigator, Person driver) {
         this.projects = new Projects(StreamEx.of(projects.projects).limit(3).toList())

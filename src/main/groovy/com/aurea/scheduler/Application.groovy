@@ -1,11 +1,13 @@
 package com.aurea.scheduler
 
+import com.aurea.google.GoogleOutputProcessor
 import one.util.streamex.StreamEx
 
 class Application {
 
     private Scheduler scheduler
     private List<Person> people
+    private ArrayList<PlannedSession> plannedSessions
 
     private Application() {
         prepareData()
@@ -71,6 +73,7 @@ class Application {
     }
 
     private void execute(boolean fullReport) {
+        plannedSessions = new ArrayList<>()
         int day = 1
         while (true) {
 
@@ -84,7 +87,11 @@ class Application {
             if (sessions.isEmpty())
                 break
 
-            Reporter.reportSessions(sessions, day++)
+            def newPlannedSessions = StreamEx.of(sessions).map { new PlannedSession(it, day) }.toList()
+
+            Reporter.reportSessions(newPlannedSessions)
+            plannedSessions.addAll(newPlannedSessions)
+            day++
         }
     }
 
@@ -93,6 +100,9 @@ class Application {
 
         /* Prints all information */
         application.fullReport()
+
+        /* Write output to google document */
+        GoogleOutputProcessor.write(application.plannedSessions)
 
         /* Prints report in CSV format, can be opened with Excel */
 //        application.csvReport()

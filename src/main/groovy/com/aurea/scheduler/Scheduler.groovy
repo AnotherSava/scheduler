@@ -6,7 +6,7 @@ class Scheduler {
 
     protected Projects projects
     protected List<Person> persons
-    private List<Session> sessions
+    protected List<Session> sessions
 
     Scheduler(Projects projects, List<Person> persons) {
         this.projects = projects
@@ -40,10 +40,12 @@ class Scheduler {
 
         projects.projects.each { newSessions.addAll(scheduleAll(it, availablePeople)) }
 
+        sessions.addAll(newSessions)
+
         newSessions
     }
 
-    private List<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
+    private static List<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
         def newSessions = new ArrayList<>()
         def session
 
@@ -53,8 +55,6 @@ class Scheduler {
             session.driver.knows.addAll(session.projects.projects)
             availablePeople.remove(session.driver)
         }
-
-        sessions.addAll(newSessions)
 
         newSessions
     }
