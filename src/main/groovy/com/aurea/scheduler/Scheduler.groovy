@@ -5,7 +5,7 @@ import one.util.streamex.StreamEx
 class Scheduler {
 
     protected Projects projects
-    private List<Person> persons
+    protected List<Person> persons
     private List<Session> sessions
 
     Scheduler(Projects projects, List<Person> persons) {
@@ -15,61 +15,52 @@ class Scheduler {
     }
 
     private int leftToLearn(Person person) {
-        return projects.projects.size() - person.knows.size()
+        projects.projects.size() - person.knows.size()
     }
 
     private long leftToTeach(Project project) {
-        return StreamEx.of(persons).filter{ it.needNavigation(project) }.count()
+        StreamEx.of(persons).filter{ it.needNavigation(project) }.count()
     }
 
     private long numberOfNavigators(Project project) {
-        return StreamEx.of(persons).filter{ it.canNavigate(project) }.count()
+        StreamEx.of(persons).filter{ it.canNavigate(project) }.count()
     }
 
-    private double remainingWorkload(Person person) {
-        return leftToLearn(person) + StreamEx.of(person.navigate).mapToDouble{remainingWorkload(it)}.sum()
+    protected double remainingWorkloadForPerson(Person person) {
+        leftToLearn(person) + StreamEx.of(person.navigate).mapToDouble{remainingWorkload(it)}.sum()
     }
 
     private double remainingWorkload(Project project) {
-        return ((double) leftToTeach(project)) / numberOfNavigators(project)
+        ((double) leftToTeach(project)) / numberOfNavigators(project)
     }
 
-    private static String getPersonStatusWithTheProject(Person person, Project project) {
-        return person.canNavigate(project) ? "N" : person.needNavigation(project) ? "-" : "+"
+    List<Session> schedule() {
+        def newSessions = new ArrayList<>()
+        def availablePeople = new ArrayList<>(persons)
+
+        projects.projects.each { newSessions.addAll(scheduleAll(it, availablePeople)) }
+
+        newSessions
     }
 
-    private String createPersonStatusWithProjects(Person person) {
-        return StreamEx.of(projects.projects).map { getPersonStatusWithTheProject(person, it) }.joining("  ")
-    }
+    private List<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
+        def newSessions = new ArrayList<>()
+        def session
 
-    void reportState() {
-        persons.forEach { System.out.println(
-                createPersonStatusWithProjects(it) + "     " + it + ",  remaining workload: " + remainingWorkload(it))}
-    }
-
-    double getTotalRemainingWorkload() {
-        return StreamEx.of(persons).mapToDouble{remainingWorkload(it)}.sum()
-    }
-
-    void schedule(int day) {
-        Collection<Person> availablePeople = new ArrayList<>(persons)
-        projects.projects.forEach { scheduleAll(it, availablePeople, day) }
-    }
-
-    private void scheduleAll(Project project, Collection<Person> availablePeople, int day) {
-        Optional<Session> session = scheduleAll(project, availablePeople)
-        while (session.isPresent()) {
-            sessions.add(session.get())
-            System.out.println(session.get().toString() + "," + day)
-            availablePeople.remove(session.get().navigator)
-            session.get().driver.knows.addAll(session.get().projects.projects)
-            availablePeople.remove(session.get().driver)
-            session = scheduleAll(project, availablePeople)
+        while (session = scheduleOne(project, availablePeople).orElse(null)) {
+            newSessions.add(session)
+            availablePeople.remove(session.navigator)
+            session.driver.knows.addAll(session.projects.projects)
+            availablePeople.remove(session.driver)
         }
+
+        sessions.addAll(newSessions)
+
+        newSessions
     }
 
-    private static Optional<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
-        return StreamEx.of(availablePeople)
+    private static Optional<Session> scheduleOne(Project project, Collection<Person> availablePeople) {
+        StreamEx.of(availablePeople)
                 .filter { it.canNavigate(project) }
                 .flatMap {
                     navigator -> StreamEx.of(availablePeople)
@@ -82,6 +73,6 @@ class Scheduler {
 
     private static Session createSession(Person navigator, Person driver) {
         Projects projects = new Projects(StreamEx.of(navigator.navigate).filter{driver.needNavigation(it) }.toList())
-        return new Session(projects, navigator, driver)
+        new Session(projects, navigator, driver)
     }
 }
