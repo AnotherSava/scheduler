@@ -6,6 +6,9 @@ import one.util.streamex.StreamEx
 class Application {
     private static final String SPREADSHEET_ID = "1oqG81V2ozBDRr75rJ146bvD58ydsQ6bCh4PjNOOk4dE"
 
+    private static final int DAYS_PER_SESSION = 2
+    public static final int NAVIGATOR_PER_PROJECT = 1
+
     private Scheduler scheduler
     private ArrayList<PlannedSession> plannedSessions
     private GoogleIOProcessor ioProcessor
@@ -31,11 +34,15 @@ class Application {
             if (sessions.isEmpty())
                 break
 
-            def newPlannedSessions = StreamEx.of(sessions).map { new PlannedSession(it, day) }.toList()
+            for (int i = 0; i < DAYS_PER_SESSION; i++) {
+                sessions.each {
+                    def plannedSession = new PlannedSession(it, day + i)
+                    Reporter.reportSession(plannedSession)
+                    plannedSessions.add(plannedSession)
+                }
+            }
 
-            Reporter.reportSessions(newPlannedSessions)
-            plannedSessions.addAll(newPlannedSessions)
-            day++
+            day += DAYS_PER_SESSION
         }
 
         ioProcessor.write(plannedSessions)

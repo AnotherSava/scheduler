@@ -3,10 +3,8 @@ package com.aurea.scheduler
 import one.util.streamex.StreamEx
 
 class Reporter {
-    static void reportSessions(List<PlannedSession> plannedSessions) {
-        plannedSessions.each {
-            System.out.println(it.session.toString() + "," + it.day)
-        }
+    static void reportSession(PlannedSession plannedSession) {
+        System.out.println(plannedSession.session.toString() + "," + plannedSession.day)
     }
 
     private static String createPersonStatusWithProjects(Scheduler scheduler, Person person) {

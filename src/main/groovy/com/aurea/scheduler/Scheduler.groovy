@@ -48,12 +48,16 @@ class Scheduler {
     private static List<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
         def newSessions = new ArrayList<>()
         def session
+        def numberOfSessions = 0
 
         while (session = scheduleOne(project, availablePeople).orElse(null)) {
             newSessions.add(session)
             availablePeople.remove(session.navigator)
             session.driver.knows.addAll(session.projects.projects)
             availablePeople.remove(session.driver)
+            if (++numberOfSessions >= Application.NAVIGATOR_PER_PROJECT) {
+                break
+            }
         }
 
         newSessions
