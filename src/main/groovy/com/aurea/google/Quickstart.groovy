@@ -9,19 +9,13 @@ class Quickstart {
 
     public static final String SPREADSHEET_ID = "1oqG81V2ozBDRr75rJ146bvD58ydsQ6bCh4PjNOOk4dE"
 
-    static void main(String[] args) throws IOException {
-        // Build a new authorized API client service.
-        def service = sheetsService
-
-        sampleRead(service)
-        sampleWrite(service)
-    }
-
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
      */
-    private static void sampleRead(Sheets service) throws IOException {
+    private static void sampleRead() throws IOException {
+        def service = sheetsService
+
         String range = "Class Data!A2:E"
         ValueRange response = service.spreadsheets().values()
                 .get(SPREADSHEET_ID, range)
@@ -38,7 +32,9 @@ class Quickstart {
         }
     }
 
-    private static void sampleWrite(Sheets service) throws IOException {
+    private static void sampleWrite() throws IOException {
+        def service = sheetsService
+
         List<List<Object>> values = Arrays.asList(
                 Arrays.asList("Top left", "Top right"),
                 Arrays.asList("Bottom left", "Bottom right")
