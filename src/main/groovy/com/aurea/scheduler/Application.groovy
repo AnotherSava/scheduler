@@ -40,7 +40,7 @@ class Application {
     }
 
     private void prepareData() {
-        Projects projects = new Projects(Arrays.asList(
+        Projects projects = new Projects([
                 new Project("Accept", 17),
                 new Project("Acorn", 9),
                 new Project("Agentek", 16),
@@ -71,16 +71,17 @@ class Application {
                 new Project("StillSecure", 29),
                 new Project("TenFold", 22),
                 new Project("TriActive", 15)
-        ))
+        ])
 
-        List<Person> persons = Arrays.asList(
+        List<Person> persons = [
                 new Person("Chethan", projects.get("Prologic")),
                 new Person("Ganapati", projects.get("EPM Live", "Everest", "Infobright")),
                 new Person("Grace", projects.get("Everest", "Infobright")),
                 new Person("Isabela", projects.get("Prologic")),
                 new Person("Radu", projects.get("Accept", "Agentek", "AlterPoint", "Artemis Views", "Artemis A7", "Artemis Finland", "Auto-trol TI", "Auto-trol Konfig", "Ecora", "EPM Live", "Prologic", "Purchasingnet", "Right90", "Smartform Design")),
                 new Person("AJ", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")),
-                new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold")))
+                new Person("Marino", projects.get("Ignite", "NuView", "Acorn", "Gensym", "ObjectStore", "SenSage", "Clear", "Corizon", "ETI", "Ravenflow", "StillSecure", "TenFold"))
+        ]
 
         scheduler = new Scheduler(projects, persons)
     }
