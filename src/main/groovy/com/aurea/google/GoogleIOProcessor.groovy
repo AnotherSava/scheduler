@@ -16,7 +16,7 @@ class GoogleIOProcessor {
     }
 
     void write(List<PlannedSession> plannedSessions) throws IOException {
-        List<List<Object>> values = StreamEx.of(plannedSessions).map{[it.session.toString(), it.session.driver.toString(), it.session.navigator.toString(), it.day]}.toList()
+        List<List<Object>> values = StreamEx.of(plannedSessions).map{[it.session.projects.toString(), it.session.driver.toString(), it.session.navigator.toString(), it.day]}.toList()
         values.add(["", "", "", ""])
 
         ValueRange body = new ValueRange().setValues(values)
