@@ -4,7 +4,7 @@ import one.util.streamex.StreamEx
 
 class Reporter {
     static void reportSession(PlannedSession plannedSession) {
-        System.out.println(plannedSession.session.toString() + "," + plannedSession.day)
+        System.out.println("$plannedSession.session, $plannedSession.dayStart-$plannedSession.dayFinish")
     }
 
     private static String createPersonStatusWithProjects(Scheduler scheduler, Person person) {

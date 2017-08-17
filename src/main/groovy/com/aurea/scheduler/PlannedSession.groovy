@@ -5,5 +5,6 @@ import groovy.transform.TupleConstructor
 @TupleConstructor
 class PlannedSession {
     Session session
-    int day
+    int dayStart
+    int dayFinish
 }

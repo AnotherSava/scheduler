@@ -34,23 +34,23 @@ class Scheduler {
         ((double) leftToTeach(project)) / numberOfNavigators(project)
     }
 
-    List<Session> schedule() {
+    List<Session> schedule(int driversLevel, int navigatorsLevel) {
         def newSessions = new ArrayList<>()
         def availablePeople = new ArrayList<>(persons)
 
-        projects.projects.each { newSessions.addAll(scheduleAll(it, availablePeople)) }
+        projects.projects.each { newSessions.addAll(scheduleAllSessions(driversLevel, navigatorsLevel, it, availablePeople)) }
 
         sessions.addAll(newSessions)
 
         newSessions
     }
 
-    private static List<Session> scheduleAll(Project project, Collection<Person> availablePeople) {
+    private static List<Session> scheduleAllSessions(int driversLevel, int navigatorsLevel, Project project, Collection<Person> availablePeople) {
         def newSessions = new ArrayList<>()
         def session
         def numberOfSessions = 0
 
-        while (session = scheduleOne(project, availablePeople).orElse(null)) {
+        while (session = scheduleSingleSession(driversLevel, navigatorsLevel, project, availablePeople).orElse(null)) {
             newSessions.add(session)
             availablePeople.remove(session.navigator)
             session.driver.knows.addAll(session.projects.projects)
@@ -63,15 +63,16 @@ class Scheduler {
         newSessions
     }
 
-    private static Optional<Session> scheduleOne(Project project, Collection<Person> availablePeople) {
+    private static Optional<Session> scheduleSingleSession(int driversLevel, int navigatorsLevel, Project project, Collection<Person> availablePeople) {
         StreamEx.of(availablePeople)
+                .filter { it.level == navigatorsLevel }
                 .filter { it.canNavigate(project) }
-                .flatMap {
-                    navigator -> StreamEx.of(availablePeople)
-                        .filter { it.needNavigation(project) }
-                        .map { createSession(navigator, it) }
+                .flatMap { navigator -> StreamEx.of(availablePeople)
+                    .filter { it.level == driversLevel }
+                    .filter { it.needNavigation(project) }
+                    .map { createSession(navigator, it) }
                 }
-                .sorted()
+                .reverseSorted()
                 .findFirst()
     }
 
