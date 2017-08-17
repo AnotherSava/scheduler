@@ -1,4 +1,4 @@
-package com.aurea.google
+package com.aurea.common
 
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
@@ -13,7 +13,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 
-class Auth {
+class GoogleAuth {
 
     /** Application name. */
     private static final String APPLICATION_NAME = "Scheduler Google IO"
@@ -54,7 +54,7 @@ class Auth {
      */
     static Credential authorize() throws IOException {
         // Load client secrets.
-        InputStream inputStream = Auth.class.getResourceAsStream("/client.json")
+        InputStream inputStream = GoogleAuth.class.getResourceAsStream("/client.json")
         GoogleClientSecrets clientSecrets =
                 GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(inputStream))
 

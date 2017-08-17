@@ -12,6 +12,16 @@ class Project {
     }
 
     @Override
+    int hashCode() {
+        return name.toLowerCase().hashCode() + priority
+    }
+
+    @Override
+    boolean equals(Object obj) {
+        return obj instanceof  Project && name.equalsIgnoreCase(obj.name) && priority == obj.priority
+    }
+
+    @Override
     String toString() {
         name
     }

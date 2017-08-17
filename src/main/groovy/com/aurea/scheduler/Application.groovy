@@ -1,6 +1,5 @@
 package com.aurea.scheduler
 
-import com.aurea.google.GoogleIOProcessor
 import one.util.streamex.StreamEx
 
 class Application {
@@ -8,6 +7,8 @@ class Application {
 
     private static final int DAYS_PER_SESSION = 2
     public static final int NAVIGATOR_PER_PROJECT = 1
+    private static final int DRIVERS_LEVEL = 3
+    private static final int NAVIGATORS_LEVEL = 3
 
     private Scheduler scheduler
     private ArrayList<PlannedSession> plannedSessions
@@ -29,17 +30,15 @@ class Application {
             Reporter.reportState(scheduler)
             System.out.println()
 
-            def sessions = scheduler.schedule()
+            def sessions = scheduler.schedule(DRIVERS_LEVEL, NAVIGATORS_LEVEL)
 
             if (sessions.isEmpty())
                 break
 
-            for (int i = 0; i < DAYS_PER_SESSION; i++) {
-                sessions.each {
-                    def plannedSession = new PlannedSession(it, day + i)
-                    Reporter.reportSession(plannedSession)
-                    plannedSessions.add(plannedSession)
-                }
+            sessions.each {
+                def plannedSession = new PlannedSession(it, day, day + DAYS_PER_SESSION - 1)
+                Reporter.reportSession(plannedSession)
+                plannedSessions.add(plannedSession)
             }
 
             day += DAYS_PER_SESSION

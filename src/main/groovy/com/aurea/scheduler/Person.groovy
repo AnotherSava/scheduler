@@ -3,11 +3,13 @@ package com.aurea.scheduler
 class Person {
     public String name
 
-    public List<Project> knows
-    public List<Project> navigate
+    List<Project> knows
+    List<Project> navigate
+    int level
 
-    Person(String name, List<Project> navigate) {
+    Person(String name, int level, List<Project> navigate) {
         this.name = name
+        this.level = level
         knows = new ArrayList<>(navigate)
         this.navigate = new ArrayList<>(navigate)
     }
@@ -22,6 +24,6 @@ class Person {
 
     @Override
     String toString() {
-        name
+        "$name (L$level)"
     }
 }
