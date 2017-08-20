@@ -78,9 +78,7 @@ class GoogleAuth {
      * @throws IOException
      */
     static Sheets getSheetsService() throws IOException {
-        Credential credential = authorize()
-
-        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, authorize())
                 .setApplicationName(APPLICATION_NAME)
                 .build()
     }

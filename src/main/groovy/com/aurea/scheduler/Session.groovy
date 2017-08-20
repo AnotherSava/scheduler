@@ -20,6 +20,23 @@ class Session implements Comparable<Session> {
 
     @Override
     int compareTo(Session anotherSession) {
-        projects <=> anotherSession.projects
+        Iterator<Project> iterator = projects.projects.iterator()
+        Iterator<Project> anotherIterator = anotherSession.projects.projects.iterator()
+        while (iterator.hasNext() || anotherIterator.hasNext()) {
+            if (iterator.hasNext() && !anotherIterator.hasNext())
+                return 1
+            if (!iterator.hasNext() && anotherIterator.hasNext())
+                return -1
+            Project project = iterator.next()
+            Project anotherProject = anotherIterator.next()
+            if (project.priority != anotherProject.priority)
+                return anotherProject.priority - project.priority
+            if (driver.canNavigate(project) && !anotherSession.driver.canNavigate(anotherProject))
+                return 1
+            if (!driver.canNavigate(project) && anotherSession.driver.canNavigate(anotherProject))
+                return -1
+        }
+
+        0
     }
 }

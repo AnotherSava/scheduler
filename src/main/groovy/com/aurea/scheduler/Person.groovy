@@ -10,7 +10,7 @@ class Person {
     Person(String name, int level, List<Project> navigate) {
         this.name = name
         this.level = level
-        knows = new ArrayList<>(navigate)
+        knows = new ArrayList<>()
         this.navigate = new ArrayList<>(navigate)
     }
 
