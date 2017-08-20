@@ -1,26 +1,25 @@
 package com.aurea.scheduler
 
+import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
 import one.util.streamex.IntStreamEx
 import one.util.streamex.StreamEx
-
-import static com.aurea.common.GoogleAuth.sheetsService
 
 class GoogleIOProcessor {
     private def spreadsheetId
     private def service
 
-    GoogleIOProcessor(String spreadsheetId) {
-        service = sheetsService
+    GoogleIOProcessor(Sheets service, String spreadsheetId) {
+        this.service = service
         this.spreadsheetId = spreadsheetId
     }
 
-    void write(List<PlannedSession> plannedSessions) throws IOException {
+    void write(List<PlannedSession> plannedSessions, String tabName) throws IOException {
         List<List<Object>> values = StreamEx.of(plannedSessions).map{[it.session.projects.toString(), it.session.driver.toString(), it.session.navigator.toString(), "$it.dayStart-$it.dayFinish".toString()]}.toList()
         values.add(["", "", "", ""])
 
         ValueRange body = new ValueRange().setValues(values)
-        String range = "Output!A2:D"
+        String range = "$tabName!A2:D"
 
         service.spreadsheets().values().update(spreadsheetId, range, body)
                 .setValueInputOption("RAW")

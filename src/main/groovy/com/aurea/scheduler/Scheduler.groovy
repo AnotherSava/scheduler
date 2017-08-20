@@ -8,10 +8,23 @@ class Scheduler {
     protected List<Person> persons
     protected List<Session> sessions
 
+    private int driversLevel
+    private int navigatorsLevel
+
     Scheduler(Projects projects, List<Person> persons) {
         this.projects = projects
         this.persons = persons
         sessions = new ArrayList<>()
+    }
+
+    void init(int driversLevel, int navigatorsLevel) {
+        this.driversLevel = driversLevel
+        this.navigatorsLevel = navigatorsLevel
+        if (driversLevel == navigatorsLevel) {
+            persons.each {
+                it.knows = new ArrayList<>(it.navigate)
+            }
+        }
     }
 
     private int leftToLearn(Person person) {
@@ -34,23 +47,23 @@ class Scheduler {
         ((double) leftToTeach(project)) / numberOfNavigators(project)
     }
 
-    List<Session> schedule(int driversLevel, int navigatorsLevel) {
+    List<Session> schedule() {
         def newSessions = new ArrayList<>()
         def availablePeople = new ArrayList<>(persons)
 
-        projects.projects.each { newSessions.addAll(scheduleAllSessions(driversLevel, navigatorsLevel, it, availablePeople)) }
+        projects.projects.each { newSessions.addAll(scheduleAllSessions(it, availablePeople)) }
 
         sessions.addAll(newSessions)
 
         newSessions
     }
 
-    private static List<Session> scheduleAllSessions(int driversLevel, int navigatorsLevel, Project project, Collection<Person> availablePeople) {
+    private List<Session> scheduleAllSessions(Project project, Collection<Person> availablePeople) {
         def newSessions = new ArrayList<>()
         def session
         def numberOfSessions = 0
 
-        while (session = scheduleSingleSession(driversLevel, navigatorsLevel, project, availablePeople).orElse(null)) {
+        while (session = scheduleSingleSession(project, availablePeople).orElse(null)) {
             newSessions.add(session)
             availablePeople.remove(session.navigator)
             session.driver.knows.addAll(session.projects.projects)
@@ -63,7 +76,7 @@ class Scheduler {
         newSessions
     }
 
-    private static Optional<Session> scheduleSingleSession(int driversLevel, int navigatorsLevel, Project project, Collection<Person> availablePeople) {
+    private Optional<Session> scheduleSingleSession(Project project, Collection<Person> availablePeople) {
         StreamEx.of(availablePeople)
                 .filter { it.level == navigatorsLevel }
                 .filter { it.canNavigate(project) }
