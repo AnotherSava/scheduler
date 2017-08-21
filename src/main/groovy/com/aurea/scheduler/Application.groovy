@@ -21,8 +21,8 @@ class Application {
         settings = new SettingsSheetsParser(service, SPREADSHEET_ID).load()
     }
 
-    private void schedule(String tabName, int driversLevel, int navigatorsLevel) {
-        def daysPerSession = settings.getSessionLength(driversLevel, navigatorsLevel)
+    private void schedule(String tabName, int driversLevel, int... navigatorsLevel) {
+        def daysPerSession = settings.getSessionLength(driversLevel, navigatorsLevel[0])
         assert daysPerSession > 0
 
         def scheduler = ioProcessor.read()
@@ -59,9 +59,9 @@ class Application {
         Application application = new Application()
 
         application.schedule("Output L1", 1, 1)
-        application.schedule("Output L1-L2", 1, 2)
-        application.schedule("Output L2", 2, 2)
-        application.schedule("Output L2-L3", 2, 3)
-        application.schedule("Output L3", 3, 3)
+//        application.schedule("Output L1-L2", 1, 2)
+//        application.schedule("Output L2", 2, 2)
+        application.schedule("Output L2-L3", 2, 3, 2)
+//        application.schedule("Output L3", 3, 3)
     }
 }

@@ -1,18 +1,13 @@
 package com.aurea.scheduler
 
+import groovy.transform.TupleConstructor
+
+@TupleConstructor
 class Person {
-    public String name
-
-    List<Project> knows
-    List<Project> navigate
+    String name
     int level
-
-    Person(String name, int level, List<Project> navigate) {
-        this.name = name
-        this.level = level
-        knows = new ArrayList<>()
-        this.navigate = new ArrayList<>(navigate)
-    }
+    List<Project> navigate
+    List<Project> knows
 
     boolean canNavigate(Project project) {
         navigate.contains(project)

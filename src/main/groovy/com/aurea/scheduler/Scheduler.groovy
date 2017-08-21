@@ -9,7 +9,7 @@ class Scheduler {
     protected List<Session> sessions
 
     private int driversLevel
-    private int navigatorsLevel
+    private int [] navigatorsLevel
 
     Scheduler(Projects projects, List<Person> persons) {
         this.projects = projects
@@ -17,13 +17,13 @@ class Scheduler {
         sessions = new ArrayList<>()
     }
 
-    void init(int driversLevel, int navigatorsLevel) {
+    void init(int driversLevel, int [] navigatorsLevel) {
         this.driversLevel = driversLevel
         this.navigatorsLevel = navigatorsLevel
-        if (driversLevel == navigatorsLevel) {
-            persons.each {
-                it.knows = new ArrayList<>(it.navigate)
-            }
+        if (navigatorsLevel.contains(driversLevel)) {
+            StreamEx.of(persons)
+                    .filter{ it.level == driversLevel }
+                    .each { it.knows.addAll(it.navigate) }
         }
     }
 
@@ -78,7 +78,7 @@ class Scheduler {
 
     private Optional<Session> scheduleSingleSession(Project project, Collection<Person> availablePeople) {
         StreamEx.of(availablePeople)
-                .filter { it.level == navigatorsLevel }
+                .filter { navigatorsLevel.contains(it.level) }
                 .filter { it.canNavigate(project) }
                 .flatMap { navigator -> StreamEx.of(availablePeople)
                     .filter { it.level == driversLevel }

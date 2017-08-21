@@ -4,6 +4,7 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
 import one.util.streamex.IntStreamEx
 import one.util.streamex.StreamEx
+import org.apache.commons.lang3.StringUtils
 
 class GoogleIOProcessor {
     private def spreadsheetId
@@ -40,17 +41,22 @@ class GoogleIOProcessor {
             def values = data[level - 1]
             for (int i = 2; i < values[0].size(); i++) {
                 def name = String.valueOf(values[0][i])
-                def canNavigate = StreamEx.of(values)
-                        .skip(1)
-                        .filter { it.size() > i }
-                        .filter { !String.valueOf(it[i]).isEmpty() }
-                        .map { String.valueOf(it[0]) }
-                        .toList()
-                people.add(new Person(name, level, projects.get(canNavigate)))
+                def navigate = createProjectList(values, i, "Navigator", "Primary", "Secondary")
+                def knows = createProjectList(values, i, "Driver")
+                people.add(new Person(name, level, projects.get(navigate), projects.get(knows)))
             }
         }
 
         new Scheduler(projects, people)
+    }
+
+    private static List<String> createProjectList(List<List<Object>> values, int column, String... condition) {
+        StreamEx.of(values)
+                .skip(1)
+                .filter { it.size() > column }
+                .filter { StringUtils.containsAny(String.valueOf(it[column]), condition) }
+                .map { String.valueOf(it[0]) }
+                .toList()
     }
 
     private static Set<Project> parseProjects(List<List<List<Object>>> data) {
